@@ -9,17 +9,25 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using DataSekolahWithIdentity.Models;
 
 namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        //private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<AppRole> _signInManager;
+        private readonly UserManager<AppRole> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(
+            //SignInManager<IdentityUser> signInManager, 
+            UserManager<AppRole> userManager,
+            SignInManager<AppRole> signInManager,
+            ILogger<LoginModel> logger)
         {
+            _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
         }
@@ -77,7 +85,20 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return RedirectToAction("Privacy", "Home");
+
+                    var dt = _userManager.Users.Where(a => a.Email == Input.Email).FirstOrDefault();
+                    if(dt.Role == "tu")
+                    {
+                        return RedirectToAction("Index", "Guru");
+                    }
+                    else if (dt.Role == "kepsek")
+                    {
+                        return RedirectToAction("Index", "Kepsek");
+                    }
+                    else
+                    {
+                        return LocalRedirect(returnUrl);
+                    }
                 }
                 if (result.RequiresTwoFactor)
                 {

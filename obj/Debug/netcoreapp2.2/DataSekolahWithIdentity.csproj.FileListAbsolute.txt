@@ -78,3 +78,9 @@ D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\DataSekolahWithIde
 D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\DataSekolahWithIdentity.dll
 D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\DataSekolahWithIdentity.pdb
 D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\DataSekolahWithIdentity.csproj.CopyComplete
+D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\Razor\Views\Guru\Create.g.cshtml.cs
+D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\Razor\Views\Guru\Delete.g.cshtml.cs
+D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\Razor\Views\Guru\Details.g.cshtml.cs
+D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\Razor\Views\Guru\Edit.g.cshtml.cs
+D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\Razor\Views\Guru\Index.g.cshtml.cs
+D:\Algostudio\DataSekolahWithIdentity\obj\Debug\netcoreapp2.2\Razor\Views\Kepsek\Index.g.cshtml.cs

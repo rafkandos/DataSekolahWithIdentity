@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DataSekolahWithIdentity.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace DataSekolahWithIdentity.Controllers
 {
@@ -12,6 +13,7 @@ namespace DataSekolahWithIdentity.Controllers
     {
         public IActionResult Index()
         {
+            //ViewBag.Role = HttpContext.Session.GetString("Role");
             return View();
         }
 

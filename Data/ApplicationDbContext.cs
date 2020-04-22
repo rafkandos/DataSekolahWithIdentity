@@ -15,5 +15,11 @@ namespace DataSekolahWithIdentity.Data
         }
 
         public DbSet<UserRole> UserRole { get; set; }
+
+        public DbSet<Siswa> Siswa { get; set; }
+
+        public DbSet<Kelas> Kelas { get; set; }
+
+        public DbSet<Guru> Guru { get; set; }
     }
 }

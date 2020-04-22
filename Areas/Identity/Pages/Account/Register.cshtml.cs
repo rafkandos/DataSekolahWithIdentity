@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using DataSekolahWithIdentity.Models;
 using DataSekolahWithIdentity.Data;
+using Microsoft.AspNetCore.Http;
 
 namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
 {
@@ -24,16 +25,16 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
         //    db = context;
         //}
 
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        //private readonly RoleManager<IdentityRole> _role;
+        private readonly SignInManager<AppRole> _signInManager;
+        private readonly UserManager<AppRole> _userManager;
+        //private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
-            //RoleManager<IdentityRole> roleManager
+            UserManager<AppRole> userManager,
+            SignInManager<AppRole> signInManager,
+            //RoleManager<IdentityRole> roleManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -41,6 +42,7 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            //_roleManager = roleManager;
         }
 
         [BindProperty]
@@ -97,13 +99,26 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    //var ru = new IdentityUserRole();
-                    //ru.UserId = user.Id;
-                    //ru.RoleId = Input.Role;
+                    //var role = new IdentityRole();
+                    //role.Name = user.Role;
+                    //await _roleManager.CreateAsync(role);
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    return LocalRedirect(returnUrl);
+                    //HttpContext.Session.SetString("Role", user.Role);
+                    //HttpContext.Session.SetString("Role", user.Role);
+                    if (user.Role == "tu")
+                    {
+                        return RedirectToAction("Index", "Guru");
+                    }
+                    else if(user.Role == "kepsek")
+                    {
+                        return RedirectToAction("Index", "Kepsek");
+                    }
+                    else
+                    {
+                        return LocalRedirect(returnUrl);
+                    }
                 }
                 foreach (var error in result.Errors)
                 {
