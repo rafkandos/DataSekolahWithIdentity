@@ -26,12 +26,14 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
 
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        //private readonly RoleManager<IdentityRole> _role;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
+            //RoleManager<IdentityRole> roleManager
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -64,9 +66,9 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
 
-            //[Required]
-            //[Display(Name = "Role")]
-            //public string Role { get; set; }
+            [Required]
+            [Display(Name = "Role")]
+            public string Role { get; set; }
         }
 
         public void OnGet(string returnUrl = null)
@@ -79,7 +81,7 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+                var user = new AppRole { UserName = Input.Email, Email = Input.Email, Role = Input.Role };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -94,6 +96,10 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    //var ru = new IdentityUserRole();
+                    //ru.UserId = user.Id;
+                    //ru.RoleId = Input.Role;
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
 

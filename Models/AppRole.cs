@@ -6,13 +6,8 @@ using System.Threading.Tasks;
 
 namespace DataSekolahWithIdentity.Models
 {
-    public class AppRole : IdentityRole<int>
+    public class AppRole : IdentityUser
     {
-        public AppRole() { }
-
-        public AppRole(string name)
-        {
-            Name = name;
-        }
+        public string Role { get; set; }
     }
 }

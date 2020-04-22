@@ -7,7 +7,7 @@ using DataSekolahWithIdentity.Models;
 
 namespace DataSekolahWithIdentity.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<AppRole>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

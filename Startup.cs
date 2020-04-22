@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using DataSekolahWithIdentity.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using DataSekolahWithIdentity.Models;
 
 namespace DataSekolahWithIdentity
 {
@@ -38,7 +39,7 @@ namespace DataSekolahWithIdentity
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDefaultIdentity<AppRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
