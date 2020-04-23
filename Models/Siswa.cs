@@ -10,6 +10,8 @@ namespace DataSekolahWithIdentity.Models
     public class Siswa
     {
         [Key]
+        public int Id { get; set; }
+
         public int NIM { get; set; }
 
         [MaxLength(100)]

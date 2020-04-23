@@ -10,22 +10,23 @@ using DataSekolahWithIdentity.Models;
 
 namespace DataSekolahWithIdentity.Controllers
 {
-    public class GuruController : Controller
+    public class SiswaController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public GuruController(ApplicationDbContext context)
+        public SiswaController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Guru
+        // GET: Siswa
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Guru.ToListAsync());
+            var applicationDbContext = _context.Siswa.Include(s => s.Kelas);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Guru/Details/5
+        // GET: Siswa/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +34,43 @@ namespace DataSekolahWithIdentity.Controllers
                 return NotFound();
             }
 
-            var guru = await _context.Guru
-                .FirstOrDefaultAsync(m => m.GuruId == id);
-            if (guru == null)
+            var siswa = await _context.Siswa
+                .Include(s => s.Kelas)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (siswa == null)
             {
                 return NotFound();
             }
 
-            return View(guru);
+            return View(siswa);
         }
 
-        // GET: Guru/Create
+        // GET: Siswa/Create
         public IActionResult Create()
         {
+            //ViewData["KelasId"] = new SelectList(_context.Kelas, "KelasId", "KelasId");
+            ViewBag.Kelas = _context.Kelas.ToList();
             return View();
         }
 
-        // POST: Guru/Create
+        // POST: Siswa/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GuruId,NamaGuru,Username,Password,Status")] Guru guru)
+        public async Task<IActionResult> Create([Bind("Id,NIM,Nama,KelasId")] Siswa siswa)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(guru);
+                _context.Add(siswa);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(guru);
+            ViewData["KelasId"] = new SelectList(_context.Kelas, "KelasId", "KelasId", siswa.KelasId);
+            return View(siswa);
         }
 
-        // GET: Guru/Edit/5
+        // GET: Siswa/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +78,23 @@ namespace DataSekolahWithIdentity.Controllers
                 return NotFound();
             }
 
-            var guru = await _context.Guru.FindAsync(id);
-            if (guru == null)
+            var siswa = await _context.Siswa.FindAsync(id);
+            if (siswa == null)
             {
                 return NotFound();
             }
-            return View(guru);
+            ViewBag.Kelas = _context.Kelas.ToList();
+            return View(siswa);
         }
 
-        // POST: Guru/Edit/5
+        // POST: Siswa/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GuruId,NamaGuru,Username,Password,Status")] Guru guru)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,NIM,Nama,KelasId")] Siswa siswa)
         {
-            if (id != guru.GuruId)
+            if (id != siswa.Id)
             {
                 return NotFound();
             }
@@ -97,12 +103,12 @@ namespace DataSekolahWithIdentity.Controllers
             {
                 try
                 {
-                    _context.Update(guru);
+                    _context.Update(siswa);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GuruExists(guru.GuruId))
+                    if (!SiswaExists(siswa.Id))
                     {
                         return NotFound();
                     }
@@ -113,10 +119,11 @@ namespace DataSekolahWithIdentity.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(guru);
+            ViewData["KelasId"] = new SelectList(_context.Kelas, "KelasId", "KelasId", siswa.KelasId);
+            return View(siswa);
         }
 
-        // GET: Guru/Delete/5
+        // GET: Siswa/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +131,31 @@ namespace DataSekolahWithIdentity.Controllers
                 return NotFound();
             }
 
-            var guru = await _context.Guru
-                .FirstOrDefaultAsync(m => m.GuruId == id);
-            if (guru == null)
+            var siswa = await _context.Siswa
+                .Include(s => s.Kelas)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (siswa == null)
             {
                 return NotFound();
             }
 
-            return View(guru);
+            return View(siswa);
         }
 
-        // POST: Guru/Delete/5
+        // POST: Siswa/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var guru = await _context.Guru.FindAsync(id);
-            _context.Guru.Remove(guru);
+            var siswa = await _context.Siswa.FindAsync(id);
+            _context.Siswa.Remove(siswa);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GuruExists(int id)
+        private bool SiswaExists(int id)
         {
-            return _context.Guru.Any(e => e.GuruId == id);
+            return _context.Siswa.Any(e => e.Id == id);
         }
     }
 }

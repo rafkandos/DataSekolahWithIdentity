@@ -4,14 +4,16 @@ using DataSekolahWithIdentity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataSekolahWithIdentity.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200423071536_delTblSiswa")]
+    partial class delTblSiswa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,26 +90,6 @@ namespace DataSekolahWithIdentity.Data.Migrations
                     b.HasKey("KelasId");
 
                     b.ToTable("Kelas");
-                });
-
-            modelBuilder.Entity("DataSekolahWithIdentity.Models.Siswa", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("KelasId");
-
-                    b.Property<int>("NIM");
-
-                    b.Property<string>("Nama")
-                        .HasMaxLength(100);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KelasId");
-
-                    b.ToTable("Siswa");
                 });
 
             modelBuilder.Entity("DataSekolahWithIdentity.Models.UserRole", b =>
@@ -237,14 +219,6 @@ namespace DataSekolahWithIdentity.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("DataSekolahWithIdentity.Models.Siswa", b =>
-                {
-                    b.HasOne("DataSekolahWithIdentity.Models.Kelas", "Kelas")
-                        .WithMany()
-                        .HasForeignKey("KelasId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

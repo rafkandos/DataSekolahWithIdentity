@@ -89,7 +89,7 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
                     var dt = _userManager.Users.Where(a => a.Email == Input.Email).FirstOrDefault();
                     if(dt.Role == "tu")
                     {
-                        return RedirectToAction("Index", "Guru");
+                        return RedirectToAction("Index", "Siswa");
                     }
                     else if (dt.Role == "kepsek")
                     {

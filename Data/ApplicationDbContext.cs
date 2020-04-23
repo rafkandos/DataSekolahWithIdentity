@@ -20,6 +20,6 @@ namespace DataSekolahWithIdentity.Data
 
         public DbSet<Kelas> Kelas { get; set; }
 
-        public DbSet<Guru> Guru { get; set; }
+        //public DbSet<Guru> Guru { get; set; }
     }
 }
