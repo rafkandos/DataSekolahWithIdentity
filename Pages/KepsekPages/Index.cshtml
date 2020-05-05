@@ -1,0 +1,69 @@
+﻿@page
+@model DataSekolahWithIdentity.Pages.KepsekPages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_DevExtremeLayout";
+}
+
+<h1>Index</h1>
+
+@(Html.DevExtreme().Chart()
+    .ID("chart")
+    .DataSource("/Kepsek/GetData")
+    .Series(s => s
+        .Add()
+        .Type(SeriesType.Bar)
+    )
+    .Legend(l => l.Visible(false))
+    .ArgumentAxis(a => a
+        .TickInterval(10)
+        .Label(l => l
+            .Format(f => f
+                .Type(Format.Decimal)
+            )
+        )
+    )
+    .Title("Data Siswa Tiap Kelas")
+)
+
+<script>
+
+    $(document).ready(function () {
+
+        var xhr = new XMLHttpRequest();
+        var url = "/Kepsek/GetData";
+        xhr.onreadystatechange = function () {
+            //console.log(this.responseText);
+            var halo = JSON.parse(this.responseText);
+            console.log(halo);
+        };
+        xhr.open("GET", url, true);
+        xhr.send();
+
+    }); 
+
+    var populationData = [{
+        arg: 1950,
+        val: 100
+    }, {
+        arg: 1960,
+        val: 200
+    }, {
+        arg: 1970,
+        val: 250
+    }, {
+        arg: 1980,
+        val: 150
+    }, {
+        arg: 1990,
+        val: 300
+    }, {
+        arg: 2000,
+        val: 500
+    }, {
+        arg: 2010,
+        val: 400
+        }];
+    console.log(populationData);
+</script>

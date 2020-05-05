@@ -109,11 +109,11 @@ namespace DataSekolahWithIdentity.Areas.Identity.Pages.Account
                     //HttpContext.Session.SetString("Role", user.Role);
                     if (user.Role == "tu")
                     {
-                        return RedirectToAction("Index", "Siswa");
+                        return Redirect("~/SiswaPages");
                     }
                     else if(user.Role == "kepsek")
                     {
-                        return RedirectToAction("Index", "Kepsek");
+                        return Redirect("~/KepsekPages");
                     }
                     else
                     {

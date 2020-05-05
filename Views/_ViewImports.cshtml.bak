@@ -1,0 +1,3 @@
+﻿@using DataSekolahWithIdentity
+@using DataSekolahWithIdentity.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

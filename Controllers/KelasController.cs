@@ -1,153 +1,119 @@
-﻿using System;
+﻿using DevExtreme.AspNet.Data;
+using DevExtreme.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using DataSekolahWithIdentity.Data;
 using DataSekolahWithIdentity.Models;
 
 namespace DataSekolahWithIdentity.Controllers
 {
+    [Route("api/[controller]/[action]")]
     public class KelasController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private ApplicationDbContext _context;
 
-        public KelasController(ApplicationDbContext context)
-        {
+        public KelasController(ApplicationDbContext context) {
             _context = context;
         }
 
-        // GET: Kelas
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Kelas.ToListAsync());
+        [HttpGet]
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions) {
+            var kelas = _context.Kelas.Select(i => new {
+                i.KelasId,
+                i.Tingkat,
+                i.Jurusan,
+                i.WaliKelas
+            });
+
+            // If you work with a large amount of data, consider specifying the PaginateViaPrimaryKey and PrimaryKey properties.
+            // In this case, keys and data are loaded in separate queries. This can make the SQL execution plan more efficient.
+            // Refer to the topic https://github.com/DevExpress/DevExtreme.AspNet.Data/issues/336.
+            // loadOptions.PrimaryKey = new[] { "KelasId" };
+            // loadOptions.PaginateViaPrimaryKey = true;
+
+            return Json(await DataSourceLoader.LoadAsync(kelas, loadOptions));
         }
 
-        // GET: Kelas/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var kelas = await _context.Kelas
-                .FirstOrDefaultAsync(m => m.KelasId == id);
-            if (kelas == null)
-            {
-                return NotFound();
-            }
-
-            return View(kelas);
-        }
-
-        // GET: Kelas/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Kelas/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("KelasId,Tingkat,Jurusan,WaliKelas")] Kelas kelas)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(kelas);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(kelas);
-        }
+        public async Task<IActionResult> Post(string values) {
+            var model = new Kelas();
+            var valuesDict = JsonConvert.DeserializeObject<IDictionary>(values);
+            PopulateModel(model, valuesDict);
 
-        // GET: Kelas/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if(!TryValidateModel(model))
+                return BadRequest(GetFullErrorMessage(ModelState));
 
-            var kelas = await _context.Kelas.FindAsync(id);
-            if (kelas == null)
-            {
-                return NotFound();
-            }
-            return View(kelas);
-        }
-
-        // POST: Kelas/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("KelasId,Tingkat,Jurusan,WaliKelas")] Kelas kelas)
-        {
-            if (id != kelas.KelasId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(kelas);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!KelasExists(kelas.KelasId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(kelas);
-        }
-
-        // GET: Kelas/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var kelas = await _context.Kelas
-                .FirstOrDefaultAsync(m => m.KelasId == id);
-            if (kelas == null)
-            {
-                return NotFound();
-            }
-
-            return View(kelas);
-        }
-
-        // POST: Kelas/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var kelas = await _context.Kelas.FindAsync(id);
-            _context.Kelas.Remove(kelas);
+            var result = _context.Kelas.Add(model);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Json(result.Entity.KelasId);
         }
 
-        private bool KelasExists(int id)
-        {
-            return _context.Kelas.Any(e => e.KelasId == id);
+        [HttpPut]
+        public async Task<IActionResult> Put(int key, string values) {
+            var model = await _context.Kelas.FirstOrDefaultAsync(item => item.KelasId == key);
+            if(model == null)
+                return StatusCode(409, "Kelas not found");
+
+            var valuesDict = JsonConvert.DeserializeObject<IDictionary>(values);
+            PopulateModel(model, valuesDict);
+
+            if(!TryValidateModel(model))
+                return BadRequest(GetFullErrorMessage(ModelState));
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpDelete]
+        public async Task Delete(int key) {
+            var model = await _context.Kelas.FirstOrDefaultAsync(item => item.KelasId == key);
+
+            _context.Kelas.Remove(model);
+            await _context.SaveChangesAsync();
+        }
+
+
+        private void PopulateModel(Kelas model, IDictionary values) {
+            string KELAS_ID = nameof(Kelas.KelasId);
+            string TINGKAT = nameof(Kelas.Tingkat);
+            string JURUSAN = nameof(Kelas.Jurusan);
+            string WALI_KELAS = nameof(Kelas.WaliKelas);
+
+            if(values.Contains(KELAS_ID)) {
+                model.KelasId = Convert.ToInt32(values[KELAS_ID]);
+            }
+
+            if(values.Contains(TINGKAT)) {
+                model.Tingkat = Convert.ToString(values[TINGKAT]);
+            }
+
+            if(values.Contains(JURUSAN)) {
+                model.Jurusan = Convert.ToString(values[JURUSAN]);
+            }
+
+            if(values.Contains(WALI_KELAS)) {
+                model.WaliKelas = Convert.ToString(values[WALI_KELAS]);
+            }
+        }
+
+        private string GetFullErrorMessage(ModelStateDictionary modelState) {
+            var messages = new List<string>();
+
+            foreach(var entry in modelState) {
+                foreach(var error in entry.Value.Errors)
+                    messages.Add(error.ErrorMessage);
+            }
+
+            return String.Join(" ", messages);
         }
     }
 }

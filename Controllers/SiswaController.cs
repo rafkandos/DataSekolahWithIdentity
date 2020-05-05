@@ -1,161 +1,130 @@
-﻿using System;
+﻿using DevExtreme.AspNet.Data;
+using DevExtreme.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using DataSekolahWithIdentity.Data;
 using DataSekolahWithIdentity.Models;
 
 namespace DataSekolahWithIdentity.Controllers
 {
+    [Route("api/[controller]/[action]")]
     public class SiswaController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private ApplicationDbContext _context;
 
-        public SiswaController(ApplicationDbContext context)
-        {
+        public SiswaController(ApplicationDbContext context) {
             _context = context;
         }
 
-        // GET: Siswa
-        public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = _context.Siswa.Include(s => s.Kelas);
-            return View(await applicationDbContext.ToListAsync());
+        [HttpGet]
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions) {
+            var siswa = _context.Siswa.Select(i => new {
+                i.Id,
+                i.NIM,
+                i.Nama,
+                i.KelasId
+            });
+
+            // If you work with a large amount of data, consider specifying the PaginateViaPrimaryKey and PrimaryKey properties.
+            // In this case, keys and data are loaded in separate queries. This can make the SQL execution plan more efficient.
+            // Refer to the topic https://github.com/DevExpress/DevExtreme.AspNet.Data/issues/336.
+            // loadOptions.PrimaryKey = new[] { "Id" };
+            // loadOptions.PaginateViaPrimaryKey = true;
+
+            return Json(await DataSourceLoader.LoadAsync(siswa, loadOptions));
         }
 
-        // GET: Siswa/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var siswa = await _context.Siswa
-                .Include(s => s.Kelas)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (siswa == null)
-            {
-                return NotFound();
-            }
-
-            return View(siswa);
-        }
-
-        // GET: Siswa/Create
-        public IActionResult Create()
-        {
-            //ViewData["KelasId"] = new SelectList(_context.Kelas, "KelasId", "KelasId");
-            ViewBag.Kelas = _context.Kelas.ToList();
-            return View();
-        }
-
-        // POST: Siswa/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,NIM,Nama,KelasId")] Siswa siswa)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(siswa);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["KelasId"] = new SelectList(_context.Kelas, "KelasId", "KelasId", siswa.KelasId);
-            return View(siswa);
-        }
+        public async Task<IActionResult> Post(string values) {
+            var model = new Siswa();
+            var valuesDict = JsonConvert.DeserializeObject<IDictionary>(values);
+            PopulateModel(model, valuesDict);
 
-        // GET: Siswa/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if(!TryValidateModel(model))
+                return BadRequest(GetFullErrorMessage(ModelState));
 
-            var siswa = await _context.Siswa.FindAsync(id);
-            if (siswa == null)
-            {
-                return NotFound();
-            }
-            ViewBag.Kelas = _context.Kelas.ToList();
-            return View(siswa);
-        }
-
-        // POST: Siswa/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,NIM,Nama,KelasId")] Siswa siswa)
-        {
-            if (id != siswa.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(siswa);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SiswaExists(siswa.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["KelasId"] = new SelectList(_context.Kelas, "KelasId", "KelasId", siswa.KelasId);
-            return View(siswa);
-        }
-
-        // GET: Siswa/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var siswa = await _context.Siswa
-                .Include(s => s.Kelas)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (siswa == null)
-            {
-                return NotFound();
-            }
-
-            return View(siswa);
-        }
-
-        // POST: Siswa/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var siswa = await _context.Siswa.FindAsync(id);
-            _context.Siswa.Remove(siswa);
+            var result = _context.Siswa.Add(model);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Json(result.Entity.Id);
         }
 
-        private bool SiswaExists(int id)
-        {
-            return _context.Siswa.Any(e => e.Id == id);
+        [HttpPut]
+        public async Task<IActionResult> Put(int key, string values) {
+            var model = await _context.Siswa.FirstOrDefaultAsync(item => item.Id == key);
+            if(model == null)
+                return StatusCode(409, "Siswa not found");
+
+            var valuesDict = JsonConvert.DeserializeObject<IDictionary>(values);
+            PopulateModel(model, valuesDict);
+
+            if(!TryValidateModel(model))
+                return BadRequest(GetFullErrorMessage(ModelState));
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpDelete]
+        public async Task Delete(int key) {
+            var model = await _context.Siswa.FirstOrDefaultAsync(item => item.Id == key);
+
+            _context.Siswa.Remove(model);
+            await _context.SaveChangesAsync();
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> KelasLookup(DataSourceLoadOptions loadOptions) {
+            var lookup = from i in _context.Kelas
+                         orderby i.Tingkat
+                         select new {
+                             Value = i.KelasId,
+                             Text = i.Tingkat
+                         };
+            return Json(await DataSourceLoader.LoadAsync(lookup, loadOptions));
+        }
+
+        private void PopulateModel(Siswa model, IDictionary values) {
+            string ID = nameof(Siswa.Id);
+            string NIM = nameof(Siswa.NIM);
+            string NAMA = nameof(Siswa.Nama);
+            string KELAS_ID = nameof(Siswa.KelasId);
+
+            if(values.Contains(ID)) {
+                model.Id = Convert.ToInt32(values[ID]);
+            }
+
+            if(values.Contains(NIM)) {
+                model.NIM = Convert.ToInt32(values[NIM]);
+            }
+
+            if(values.Contains(NAMA)) {
+                model.Nama = Convert.ToString(values[NAMA]);
+            }
+
+            if(values.Contains(KELAS_ID)) {
+                model.KelasId = Convert.ToInt32(values[KELAS_ID]);
+            }
+        }
+
+        private string GetFullErrorMessage(ModelStateDictionary modelState) {
+            var messages = new List<string>();
+
+            foreach(var entry in modelState) {
+                foreach(var error in entry.Value.Errors)
+                    messages.Add(error.ErrorMessage);
+            }
+
+            return String.Join(" ", messages);
         }
     }
 }

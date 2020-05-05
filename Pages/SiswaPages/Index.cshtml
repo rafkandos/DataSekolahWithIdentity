@@ -1,0 +1,116 @@
+﻿@page
+@model DataSekolahWithIdentity.Pages.SiswaPages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_DevExtremeLayout";
+}
+
+<h1>Index</h1>
+
+@*<div class="row">
+    <div class="col-sm-12" style="padding-bottom:20px">
+        <div class="col-sm-2">
+            <span>Select File  :</span>
+        </div>
+        <div class="col-sm-3">
+            <input class="form-control" type="file" name="importFile" id="importFile" />
+        </div>
+        <div class="col-sm-3">
+            <input class="btn btn-primary" id="btnUpload" type="button" value="Upload" />
+        </div>
+    </div>
+</div>*@
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" enctype="multipart/form-data" class="form-inline">
+            <div class="form-group">
+                <label>Select File : &nbsp;</label>
+                <input class="form-control" type="file" name="importFile" id="importFile" required />
+                &nbsp;
+                <input type="submit" value="Upload" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <a class="btn btn-primary text-white" href="~/Template Add Siswa.xlsx" download>Download Template</a>
+        @*<button type="submit" asp-page-handler="DownloadFile" class="btn btn-primary cancel">
+            Download Template
+        </button>*@
+    </div>
+</div>
+
+@(Html.DevExtreme().DataGrid<DataSekolahWithIdentity.Models.Siswa>()
+    .DataSource(ds => ds.Mvc()
+        .Controller("Siswa")
+        .LoadAction("Get")
+        .InsertAction("Post")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+        .Key("Id")
+    )
+    .RemoteOperations(true)
+    .FilterRow(f => f.Visible(true))
+    .Columns(columns => {
+
+        //columns.AddFor(m => m.Id);
+
+        columns.AddFor(m => m.NIM);
+
+        columns.AddFor(m => m.Nama);
+
+        columns.AddFor(m => m.KelasId).Lookup(lookup => lookup
+            .DataSource(ds => ds.WebApi().Controller("Siswa").LoadAction("KelasLookup").Key("Value"))
+            .ValueExpr("Value")
+            .DisplayExpr("Text")
+        );
+    })
+    .Editing(e => e
+        .AllowAdding(true)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+    )
+)
+
+<script>
+    @*$("form#data").submit(function (e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: '@Url.Action("BuatTes", "Home")',
+            type: 'POST',
+            data: formData,
+            success: function (data) {
+                alert(data)
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    });*@
+
+    $(document).on("click", "#btnUpload", function () {
+        var files = $("#importFile").get(0).files;
+
+        var formData = new FormData();
+        formData.append('importFile', files[0]);
+
+        $.ajax({
+            @*url: '@Url.Action("AddSiswa", "Home")',*@
+            url: '/Home/AddSiswa',
+            data: formData,
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (data.Status === 1) {
+                    alert(data.Message);
+                } else {
+                    alert("Failed to Import");
+                }
+            }
+        });
+    }); 
+</script>
