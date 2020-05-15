@@ -8,23 +8,55 @@
 
 <h1>Index</h1>
 
-@(Html.DevExtreme().Chart()
-    .ID("chart")
-    .DataSource("/Kepsek/GetData")
-    .Series(s => s
-        .Add()
-        .Type(SeriesType.Bar)
-    )
-    .Legend(l => l.Visible(false))
-    .ArgumentAxis(a => a
-        .TickInterval(10)
-        .Label(l => l
-            .Format(f => f
-                .Type(Format.Decimal)
+@*@(Html.DevExtreme().Chart()
+        .ID("chart")
+        .DataSource("/Kepsek/GetData")
+        .Series(s => s
+            .Add()
+            .Type(SeriesType.Bar)
+        )
+        .Legend(l => l.Visible(false))
+        .ArgumentAxis(a => a
+            .TickInterval(10)
+            .Label(l => l
+                .Format(f => f
+                    .Type(Format.Decimal)
+                )
             )
         )
+        .Title("Data Siswa Tiap Kelas")
+    )*@
+
+@(Html.DevExtreme().Chart()
+    .ID("chart")
+    .Rotated(true)
+    .DataSource("/Kepsek/GetData")
+    .Series(s => s.Add()
+        .Label(l => l
+            .Visible(true)
+            .BackgroundColor("#c18e92")
+        )
+        .Color("#79cac4")
+        .Type(SeriesType.Bar)
+        .ArgumentField("arg")
+        .ValueField("val")
     )
     .Title("Data Siswa Tiap Kelas")
+    .ArgumentAxis(a => a
+        .Label(l => l
+            .CustomizeText(@<text>
+                function() {
+                    return "Kelas " + this.valueText;
+                }
+            </text>)
+        )
+    )
+    .ValueAxis(a => a.Add()
+        .Tick(t => t.Visible(false))
+        .Label(l => l.Visible(false))
+    )
+    .Export(e => e.Enabled(true))
+    .Legend(l => l.Visible(false))
 )
 
 <script>
@@ -41,7 +73,7 @@
         xhr.open("GET", url, true);
         xhr.send();
 
-    }); 
+    });
 
     var populationData = [{
         arg: 1950,
@@ -64,6 +96,6 @@
     }, {
         arg: 2010,
         val: 400
-        }];
+    }];
     console.log(populationData);
 </script>
